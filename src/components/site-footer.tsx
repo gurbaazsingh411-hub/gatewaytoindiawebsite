@@ -4,7 +4,7 @@ import { MessageCircle, Camera, MapPin, Phone, Mail, Clock } from "lucide-react"
 
 export function SiteFooter() {
   return (
-    <footer className="bg-charcoal text-cream/90 mt-24">
+    <footer className="bg-charcoal text-cream/90 mt-24 hidden md:block">
       <div className="container mx-auto px-5 lg:px-8 py-16 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
         <div>
           <div className="flex items-center gap-2 mb-4">
