@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { categories, dishes } from "@/data/menu";
 import { VegBadge, SpiceLevel } from "@/components/dish-badges";
+import { useCartStore } from "@/store/cart";
 
 
 
@@ -69,18 +70,33 @@ export default function MenuPage() {
                 {d.image && (
                   <img src={(d.image as any)?.src || (d.image as any)} alt={d.name} className="w-24 h-24 md:w-28 md:h-28 rounded-xl object-cover shrink-0" width={256} height={256} loading="lazy" />
                 )}
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 flex flex-col">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2 min-w-0">
                       <VegBadge veg={d.veg} />
                       <h3 className="font-display text-xl truncate">{d.name}</h3>
                     </div>
-                    <span className="text-primary font-semibold whitespace-nowrap">{d.price}</span>
+                    <span className="text-primary font-semibold whitespace-nowrap">${d.price}</span>
                   </div>
-                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">{d.description}</p>
+                  <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed flex-1">{d.description}</p>
                   <div className="mt-3 flex items-center justify-between">
-                    <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{d.category}</span>
-                    <SpiceLevel level={d.spice} />
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{d.category}</span>
+                      <SpiceLevel level={d.spice} />
+                    </div>
+                    <button 
+                      onClick={() => {
+                        useCartStore.getState().addItem({
+                          id: d.name, // Using name as ID for now since data is hardcoded
+                          name: d.name,
+                          price: parseFloat(d.price),
+                          veg: d.veg
+                        });
+                      }}
+                      className="bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground px-3 py-1.5 rounded-full text-xs font-semibold transition-colors"
+                    >
+                      + Add to Plate
+                    </button>
                   </div>
                 </div>
               </article>
