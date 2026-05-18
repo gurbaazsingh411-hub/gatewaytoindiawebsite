@@ -30,8 +30,8 @@ export default function LoginPage() {
 
         <form action={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" required placeholder="admin@gatewaygourmet.com" />
+            <Label htmlFor="username">Username</Label>
+            <Input id="username" name="username" type="text" required placeholder="user@1234" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>

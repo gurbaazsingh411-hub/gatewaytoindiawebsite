@@ -35,8 +35,11 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isAdminCookie = request.cookies.get("gateway_admin_logged_in")?.value === "true";
+
   if (
     !user &&
+    !isAdminCookie &&
     request.nextUrl.pathname.startsWith("/admin")
   ) {
     // no user, potentially respond by redirecting the user to the login page

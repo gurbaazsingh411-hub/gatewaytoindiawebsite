@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 
 import { ShoppingBag } from "lucide-react";
 import { useCartStore } from "@/store/cart";
@@ -10,15 +11,16 @@ import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
 export function FloatingCart() {
-  const { items, total, removeItem, updateQuantity } = useCartStore((state) => ({
-    items: state.items,
-    total: state.getTotal(),
-    removeItem: state.removeItem,
-    updateQuantity: state.updateQuantity,
-  }));
+  const { items, getTotal, removeItem, updateQuantity } = useCartStore();
+  const total = getTotal();
   const router = useRouter();
+  const [isMounted, setIsMounted] = React.useState(false);
 
-  if (items.length === 0) return null;
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted || items.length === 0) return null;
 
   return (
     <Sheet>

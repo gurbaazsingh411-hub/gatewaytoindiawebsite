@@ -10,6 +10,7 @@ import { useCartStore } from "@/store/cart";
 export default function MenuPage() {
   const [active, setActive] = useState<string>("All");
   const [query, setQuery] = useState("");
+  const addItem = useCartStore((state) => state.addItem);
 
   const filtered = useMemo(() => {
     return dishes.filter((d) => {
@@ -76,7 +77,7 @@ export default function MenuPage() {
                       <VegBadge veg={d.veg} />
                       <h3 className="font-display text-xl truncate">{d.name}</h3>
                     </div>
-                    <span className="text-primary font-semibold whitespace-nowrap">${d.price}</span>
+                    <span className="text-primary font-semibold whitespace-nowrap">₹{d.price}</span>
                   </div>
                   <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed flex-1">{d.description}</p>
                   <div className="mt-3 flex items-center justify-between">
@@ -86,8 +87,8 @@ export default function MenuPage() {
                     </div>
                     <button 
                       onClick={() => {
-                        useCartStore.getState().addItem({
-                          id: d.name, // Using name as ID for now since data is hardcoded
+                        addItem({
+                          id: d.name,
                           name: d.name,
                           price: parseFloat(d.price),
                           veg: d.veg

@@ -58,7 +58,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: 'gateway-gourmet-cart',
+      name: 'gateway-to-india-cart',
     }
   )
 );

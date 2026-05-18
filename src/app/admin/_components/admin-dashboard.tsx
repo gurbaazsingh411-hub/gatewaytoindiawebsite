@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { CheckCircle2, Clock, MapPin, Phone, Edit, Save } from "lucide-react";
+import { dishes } from "@/data/menu";
 
 export function AdminDashboard() {
   const [settings, setSettings] = useState({ open: true, delivery: true });
@@ -25,11 +26,16 @@ export function AdminDashboard() {
     { id: "RES-002", name: "Priya Patel", guests: 2, date: "May 21, 2026", time: "20:00", phone: "8765432109", status: "Pending" },
   ]);
 
-  const [menuItems, setMenuItems] = useState([
-    { id: "M1", name: "Butter Chicken", price: 22.50, available: true },
-    { id: "M2", name: "Garlic Naan", price: 5.50, available: true },
-    { id: "M3", name: "Paneer Tikka Masala", price: 19.50, available: false },
-  ]);
+  // Dynamically initialize menu items from master menu data to eliminate code repetition
+  const [menuItems, setMenuItems] = useState(() => 
+    dishes.map((d, index) => ({
+      id: `M${index + 1}`, 
+      name: d.name, 
+      price: parseFloat(d.price), 
+      available: true,
+      category: d.category
+    }))
+  );
 
   const [editingMenuId, setEditingMenuId] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState("");
@@ -40,7 +46,12 @@ export function AdminDashboard() {
   };
 
   const handleSaveMenu = (id: string) => {
-    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, price: parseFloat(editPrice) } : m));
+    const parsedPrice = parseFloat(editPrice);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      toast.error("Please enter a valid price.");
+      return;
+    }
+    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, price: parsedPrice } : m));
     setEditingMenuId(null);
     toast.success("Dish price updated successfully.");
   };
@@ -97,22 +108,26 @@ export function AdminDashboard() {
       <TabsContent value="menu" className="space-y-4">
         <h2 className="text-2xl font-semibold mb-4">Menu Management</h2>
         <Card>
-          <CardContent className="p-0 divide-y">
+          <CardContent className="p-0 divide-y max-h-[600px] overflow-y-auto">
             {menuItems.map(item => (
-              <div key={item.id} className="p-4 flex items-center justify-between">
-                <div>
-                  <h3 className="font-medium">{item.name}</h3>
+              <div key={item.id} className="p-4 flex items-center justify-between hover:bg-muted/50 transition-colors">
+                <div className="flex-1 min-w-0 pr-4">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-medium truncate">{item.name}</h3>
+                    <Badge variant="outline" className="text-[10px]">{item.category}</Badge>
+                  </div>
                   <div className="flex items-center gap-2 mt-1">
                     {editingMenuId === item.id ? (
                       <div className="flex items-center gap-2">
                         <span className="text-sm">₹</span>
                         <Input 
                           type="number" 
-                          className="w-20 h-7 text-sm" 
+                          step="0.01"
+                          className="w-24 h-7 text-sm" 
                           value={editPrice} 
                           onChange={(e) => setEditPrice(e.target.value)} 
                         />
-                        <Button size="sm" variant="ghost" onClick={() => handleSaveMenu(item.id)}><Save className="w-4 h-4" /></Button>
+                        <Button size="sm" variant="ghost" onClick={() => handleSaveMenu(item.id)}><Save className="w-4 h-4 text-green-600" /></Button>
                       </div>
                     ) : (
                       <>
@@ -122,8 +137,10 @@ export function AdminDashboard() {
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Label htmlFor={`avail-${item.id}`} className="text-xs text-muted-foreground">Available</Label>
+                <div className="flex items-center gap-3 shrink-0">
+                  <Label htmlFor={`avail-${item.id}`} className="text-xs text-muted-foreground cursor-pointer">
+                    {item.available ? "Available" : "Unavailable"}
+                  </Label>
                   <Switch 
                     id={`avail-${item.id}`} 
                     checked={item.available} 
