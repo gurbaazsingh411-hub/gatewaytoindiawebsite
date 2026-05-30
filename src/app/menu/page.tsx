@@ -113,7 +113,7 @@ export default function MenuPage() {
                       <VegBadge veg={d.veg} />
                       <h3 className="font-display text-xl truncate">{d.name}</h3>
                     </div>
-                    <span className="text-primary font-semibold whitespace-nowrap">₹{d.price}</span>
+                    <span className="text-primary font-semibold whitespace-nowrap">${d.price}</span>
                   </div>
                   <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed flex-1">{d.description}</p>
                   <div className="mt-3 flex items-center justify-between">

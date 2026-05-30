@@ -32,7 +32,7 @@ export function FloatingCart() {
               {items.reduce((sum, item) => sum + item.quantity, 0)}
             </span>
           </div>
-          <span className="font-semibold text-lg">₹{total.toFixed(2)}</span>
+          <span className="font-semibold text-lg">${total.toFixed(2)}</span>
         </button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-md flex flex-col">
@@ -44,7 +44,7 @@ export function FloatingCart() {
             <div key={item.id} className="flex gap-4 py-4">
               <div className="flex-1">
                 <h4 className="font-medium text-sm">{item.name}</h4>
-                <div className="text-muted-foreground text-sm mt-1">₹{item.price.toFixed(2)}</div>
+                <div className="text-muted-foreground text-sm mt-1">${item.price.toFixed(2)}</div>
                 <div className="flex items-center gap-3 mt-2">
                   <div className="flex items-center border rounded-md">
                     <button
@@ -70,7 +70,7 @@ export function FloatingCart() {
                 </div>
               </div>
               <div className="font-medium text-right">
-                ₹{(item.price * item.quantity).toFixed(2)}
+                ${(item.price * item.quantity).toFixed(2)}
               </div>
             </div>
           ))}
@@ -79,7 +79,7 @@ export function FloatingCart() {
           <Separator className="mb-4" />
           <div className="flex justify-between items-center font-bold text-lg mb-6">
             <span>Total</span>
-            <span>₹{total.toFixed(2)}</span>
+            <span>${total.toFixed(2)}</span>
           </div>
           <Button
             className="w-full py-6 text-lg"

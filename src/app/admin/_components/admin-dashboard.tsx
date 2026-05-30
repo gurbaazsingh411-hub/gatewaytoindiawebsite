@@ -192,7 +192,7 @@ export function AdminDashboard() {
                   <h3 className="font-semibold">{order.name}</h3>
                   <div className="text-sm text-muted-foreground flex items-center gap-4 mt-2">
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {order.date}</span>
-                    <span className="font-medium text-foreground">₹{order.amount.toFixed(2)}</span>
+                    <span className="font-medium text-foreground">${order.amount.toFixed(2)}</span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-2 text-sm">
@@ -224,7 +224,7 @@ export function AdminDashboard() {
                   <div className="flex items-center gap-2 mt-1">
                     {editingMenuId === item.id ? (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">₹</span>
+                        <span className="text-sm">$</span>
                         <Input 
                           type="number" 
                           step="0.01"
@@ -236,7 +236,7 @@ export function AdminDashboard() {
                       </div>
                     ) : (
                       <>
-                        <span className="text-sm text-muted-foreground">₹{item.price.toFixed(2)}</span>
+                        <span className="text-sm text-muted-foreground">${item.price.toFixed(2)}</span>
                         <button onClick={() => { setEditingMenuId(item.id); setEditPrice(item.price.toString()); }} className="text-muted-foreground hover:text-primary"><Edit className="w-3 h-3" /></button>
                       </>
                     )}

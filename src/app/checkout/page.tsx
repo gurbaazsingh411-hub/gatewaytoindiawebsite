@@ -126,12 +126,12 @@ export default function CheckoutPage() {
               {items.map(item => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>{item.quantity}x {item.name}</span>
-                  <span className="font-medium">₹{(item.price * item.quantity).toFixed(2)}</span>
+                  <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
               <div className="pt-4 border-t flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>₹{total.toFixed(2)}</span>
+                <span>${total.toFixed(2)}</span>
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-3">

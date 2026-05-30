@@ -1,12 +1,8 @@
 "use client";
-import { useState } from "react";
 import { CalendarCheck, Users, Utensils, Sparkles, Check } from "lucide-react";
 import cateringImg from "@/assets/catering.jpg";
 
-
-
 export default function CateringPage() {
-  const [sent, setSent] = useState(false);
 
   return (
     <>
@@ -75,54 +71,6 @@ export default function CateringPage() {
           ))}
         </div>
       </section>
-
-      <section className="container mx-auto px-5 lg:px-8 py-20 max-w-3xl">
-        <div className="text-center mb-10">
-          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Inquire</span>
-          <h2 className="mt-3 font-display text-4xl md:text-5xl">Tell us about your event</h2>
-        </div>
-
-        {sent ? (
-          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-8 text-center">
-            <h3 className="font-display text-2xl text-primary">Thank you!</h3>
-            <p className="mt-2 text-muted-foreground">We've received your inquiry and will get back within 24 hours.</p>
-          </div>
-        ) : (
-          <form
-            onSubmit={(e) => { e.preventDefault(); setSent(true); }}
-            className="bg-card border border-border rounded-2xl p-6 md:p-8 grid sm:grid-cols-2 gap-5 shadow-soft"
-          >
-            <Field label="Full name" name="name" required />
-            <Field label="Email" name="email" type="email" required />
-            <Field label="Phone" name="phone" type="tel" required />
-            <Field label="Event date" name="date" type="date" required />
-            <Field label="Number of guests" name="guests" type="number" required />
-            <Field label="Event type" name="type" placeholder="Wedding, corporate, birthday…" />
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1.5">Additional notes</label>
-              <textarea name="notes" rows={4} className="w-full rounded-xl border border-border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/40" />
-            </div>
-            <button type="submit" className="sm:col-span-2 inline-flex justify-center items-center rounded-full bg-gradient-warm px-7 py-3.5 font-semibold text-primary-foreground shadow-warm hover:scale-[1.01] transition-transform">
-              Send Inquiry
-            </button>
-          </form>
-        )}
-      </section>
     </>
-  );
-}
-
-function Field({ label, name, type = "text", required, placeholder }: { label: string; name: string; type?: string; required?: boolean; placeholder?: string }) {
-  return (
-    <div>
-      <label className="block text-sm font-medium mb-1.5">{label}{required && <span className="text-primary"> *</span>}</label>
-      <input
-        name={name}
-        type={type}
-        required={required}
-        placeholder={placeholder}
-        className="w-full rounded-xl border border-border bg-background px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/40"
-      />
-    </div>
   );
 }
