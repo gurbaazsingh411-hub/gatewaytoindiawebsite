@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -11,22 +11,22 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { CheckCircle2, Clock, MapPin, Phone, Edit, Save } from "lucide-react";
 import { dishes } from "@/data/menu";
+import { createClient } from "@/utils/supabase/client";
 
 export function AdminDashboard() {
   const [settings, setSettings] = useState({ open: true, delivery: true });
   
-  // Dummy data for simulation
+  // Dummy fallback data for simulation if Supabase is empty or uninitialized
   const [orders, setOrders] = useState([
-    { id: "ORD-001", name: "Rahul Singh", amount: 45.50, status: "Pending", payment: "Verified (Card)", date: "Today, 18:30" },
-    { id: "ORD-002", name: "Anita Desai", amount: 22.00, status: "Delivered", payment: "Cash on Delivery", date: "Today, 17:15" },
+    { id: "ORD-001", realId: "", name: "Rahul Singh", amount: 45.50, status: "Pending", payment: "Verified (Card)", date: "Today, 18:30" },
+    { id: "ORD-002", realId: "", name: "Anita Desai", amount: 22.00, status: "Delivered", payment: "Cash on Delivery", date: "Today, 17:15" },
   ]);
 
   const [reservations, setReservations] = useState([
-    { id: "RES-001", name: "Vikram Mehta", guests: 4, date: "May 20, 2026", time: "19:00", phone: "9876543210", status: "Confirmed" },
-    { id: "RES-002", name: "Priya Patel", guests: 2, date: "May 21, 2026", time: "20:00", phone: "8765432109", status: "Pending" },
+    { id: "RES-001", realId: "", name: "Vikram Mehta", guests: 4, date: "May 20, 2026", time: "19:00", phone: "9876543210", status: "Confirmed" },
+    { id: "RES-002", realId: "", name: "Priya Patel", guests: 2, date: "May 21, 2026", time: "20:00", phone: "8765432109", status: "Pending" },
   ]);
 
-  // Dynamically initialize menu items from master menu data to eliminate code repetition
   const [menuItems, setMenuItems] = useState(() => 
     dishes.map((d, index) => ({
       id: `M${index + 1}`, 
@@ -40,12 +40,75 @@ export function AdminDashboard() {
   const [editingMenuId, setEditingMenuId] = useState<string | null>(null);
   const [editPrice, setEditPrice] = useState("");
 
-  const handleToggleSetting = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
-    toast.success(`Settings updated: ${key} is now ${!settings[key] ? 'On' : 'Off'}`);
+  useEffect(() => {
+    async function fetchData() {
+      const supabase = createClient();
+      
+      // Fetch Orders
+      const { data: ordersData, error: ordersErr } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
+      if (!ordersErr && ordersData && ordersData.length > 0) {
+        setOrders(ordersData.map(o => ({
+          id: o.id.slice(0, 8).toUpperCase(),
+          realId: o.id,
+          name: o.customer_name || o.user_email || "Guest",
+          amount: parseFloat(o.total_amount),
+          status: o.status.charAt(0).toUpperCase() + o.status.slice(1),
+          payment: o.payment_method === 'card' ? "Verified (Card)" : "Cash on Delivery",
+          date: new Date(o.created_at).toLocaleDateString() + " " + new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        })));
+      }
+
+      // Fetch Reservations
+      const { data: resData, error: resErr } = await supabase.from("reservations").select("*").order("created_at", { ascending: false });
+      if (!resErr && resData && resData.length > 0) {
+        setReservations(resData.map(r => ({
+          id: r.id.slice(0, 8).toUpperCase(),
+          realId: r.id,
+          name: r.name,
+          guests: r.guests,
+          date: r.reservation_date,
+          time: r.reservation_time,
+          phone: r.phone,
+          status: r.status.charAt(0).toUpperCase() + r.status.slice(1)
+        })));
+      }
+
+      // Fetch Menu Items
+      const { data: menuData, error: menuErr } = await supabase.from("menu_items").select("*").order("category");
+      if (!menuErr && menuData && menuData.length > 0) {
+        setMenuItems(menuData.map(m => ({
+          id: m.id,
+          name: m.name,
+          price: parseFloat(m.price),
+          available: m.is_available ?? true,
+          category: m.category
+        })));
+      }
+
+      // Fetch Settings
+      const { data: setData, error: setErr } = await supabase.from("restaurant_settings").select("*").limit(1).single();
+      if (!setErr && setData) {
+        setSettings({ open: setData.is_open ?? true, delivery: setData.is_delivery_available ?? true });
+      }
+    }
+    fetchData();
+  }, []);
+
+  const handleToggleSetting = async (key: keyof typeof settings) => {
+    const nextVal = !settings[key];
+    setSettings(prev => ({ ...prev, [key]: nextVal }));
+    toast.success(`Settings updated: ${key} is now ${nextVal ? 'On' : 'Off'}`);
+
+    const supabase = createClient();
+    try {
+      const updatePayload = key === 'open' ? { is_open: nextVal } : { is_delivery_available: nextVal };
+      await supabase.from("restaurant_settings").update(updatePayload).neq("id", "00000000-0000-0000-0000-000000000000");
+    } catch (err) {
+      console.error("Setting update error:", err);
+    }
   };
 
-  const handleSaveMenu = (id: string) => {
+  const handleSaveMenu = async (id: string) => {
     const parsedPrice = parseFloat(editPrice);
     if (isNaN(parsedPrice) || parsedPrice <= 0) {
       toast.error("Please enter a valid price.");
@@ -54,11 +117,56 @@ export function AdminDashboard() {
     setMenuItems(prev => prev.map(m => m.id === id ? { ...m, price: parsedPrice } : m));
     setEditingMenuId(null);
     toast.success("Dish price updated successfully.");
+
+    if (id.startsWith("M")) return; // fallback dummy item
+    const supabase = createClient();
+    try {
+      await supabase.from("menu_items").update({ price: parsedPrice }).eq("id", id);
+    } catch (err) {
+      console.error("Menu price update error:", err);
+    }
   };
 
-  const handleToggleMenuAvailability = (id: string) => {
-    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, available: !m.available } : m));
+  const handleToggleMenuAvailability = async (id: string) => {
+    const item = menuItems.find(m => m.id === id);
+    if (!item) return;
+    const nextVal = !item.available;
+    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, available: nextVal } : m));
     toast.success("Dish availability updated.");
+
+    if (id.startsWith("M")) return; // fallback dummy item
+    const supabase = createClient();
+    try {
+      await supabase.from("menu_items").update({ is_available: nextVal }).eq("id", id);
+    } catch (err) {
+      console.error("Menu availability update error:", err);
+    }
+  };
+
+  const handleUpdateOrderStatus = async (id: string, realId?: string) => {
+    setOrders(prev => prev.map(o => o.id === id ? { ...o, status: "Preparing" } : o));
+    toast.success("Order status updated.");
+
+    if (!realId) return;
+    const supabase = createClient();
+    try {
+      await supabase.from("orders").update({ status: "preparing" }).eq("id", realId);
+    } catch (err) {
+      console.error("Order update error:", err);
+    }
+  };
+
+  const handleConfirmReservation = async (id: string, realId?: string) => {
+    setReservations(prev => prev.map(r => r.id === id ? { ...r, status: "Confirmed" } : r));
+    toast.success("Reservation confirmed.");
+
+    if (!realId) return;
+    const supabase = createClient();
+    try {
+      await supabase.from("reservations").update({ status: "confirmed" }).eq("id", realId);
+    } catch (err) {
+      console.error("Reservation update error:", err);
+    }
   };
 
   return (
@@ -79,7 +187,7 @@ export function AdminDashboard() {
                 <div>
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold">{order.id}</span>
-                    <Badge variant={order.status === 'Pending' ? 'secondary' : 'default'}>{order.status}</Badge>
+                    <Badge variant={order.status.toLowerCase() === 'pending' ? 'secondary' : 'default'}>{order.status}</Badge>
                   </div>
                   <h3 className="font-semibold">{order.name}</h3>
                   <div className="text-sm text-muted-foreground flex items-center gap-4 mt-2">
@@ -92,11 +200,8 @@ export function AdminDashboard() {
                     {order.payment.includes('Verified') && <CheckCircle2 className="w-4 h-4" />}
                     {order.payment}
                   </span>
-                  {order.status === 'Pending' && (
-                    <Button size="sm" onClick={() => {
-                      setOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: "Preparing" } : o));
-                      toast.success("Order status updated.");
-                    }}>Mark as Preparing</Button>
+                  {order.status.toLowerCase() === 'pending' && (
+                    <Button size="sm" onClick={() => handleUpdateOrderStatus(order.id, order.realId)}>Mark as Preparing</Button>
                   )}
                 </div>
               </CardContent>
@@ -162,7 +267,7 @@ export function AdminDashboard() {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <h3 className="font-bold">{res.name}</h3>
-                    <Badge variant={res.status === 'Confirmed' ? 'default' : 'secondary'} className="mt-1">{res.status}</Badge>
+                    <Badge variant={res.status.toLowerCase() === 'confirmed' ? 'default' : 'secondary'} className="mt-1">{res.status}</Badge>
                   </div>
                   <div className="text-right text-sm">
                     <span className="font-semibold">{res.guests} Guests</span>
@@ -172,12 +277,9 @@ export function AdminDashboard() {
                   <div className="flex items-center gap-2"><Clock className="w-3 h-3" /> {res.date} at {res.time}</div>
                   <div className="flex items-center gap-2"><Phone className="w-3 h-3" /> {res.phone}</div>
                 </div>
-                {res.status === 'Pending' && (
+                {res.status.toLowerCase() === 'pending' && (
                   <div className="mt-4 flex gap-2">
-                    <Button size="sm" className="w-full" onClick={() => {
-                      setReservations(prev => prev.map(r => r.id === res.id ? { ...r, status: "Confirmed" } : r));
-                      toast.success("Reservation confirmed.");
-                    }}>Confirm</Button>
+                    <Button size="sm" className="w-full" onClick={() => handleConfirmReservation(res.id, res.realId)}>Confirm</Button>
                   </div>
                 )}
               </CardContent>

@@ -17,8 +17,8 @@ export default function Contact() {
       <section className="container mx-auto px-5 lg:px-8 pb-20 grid lg:grid-cols-2 gap-10">
         <div className="space-y-5">
           {[
-            { icon: MapPin, title: "Address", body: "1234 Curry Lane\nYour City, ST 00000" },
-            { icon: Phone, title: "Phone", body: "(555) 123-4567" },
+            { icon: MapPin, title: "Address", body: "2603 6th Avenue\nTacoma, WA 98406" },
+            { icon: Phone, title: "Phone", body: "(253) 552-5022" },
             { icon: Mail, title: "Email", body: "hello@gatewaytoindia.com" },
             { icon: Clock, title: "Hours", body: "Mon – Thu: 11:30 – 21:30\nFri – Sat: 11:30 – 22:30\nSun: 12:00 – 21:00" },
           ].map(({ icon: Icon, title, body }) => (
@@ -33,7 +33,7 @@ export default function Contact() {
             </div>
           ))}
           <a
-            href="https://www.google.com/maps/dir/?api=1&destination=Gateway+to+India+Restaurant"
+            href="https://www.google.com/maps/dir/?api=1&destination=2603+6th+Avenue+Tacoma+WA+98406"
             target="_blank"
             rel="noreferrer"
             className="inline-flex items-center gap-2 rounded-full bg-gradient-warm px-6 py-3 font-semibold text-primary-foreground shadow-warm"
@@ -46,7 +46,7 @@ export default function Contact() {
           <div className="rounded-2xl overflow-hidden border border-border shadow-soft aspect-[4/3] mb-6">
             <iframe
               title="Map"
-              src="https://www.google.com/maps?q=indian+restaurant&output=embed"
+              src="https://www.google.com/maps?q=2603+6th+Avenue+Tacoma+WA+98406&output=embed"
               className="w-full h-full"
               loading="lazy"
             />

@@ -1,25 +1,56 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Search } from "lucide-react";
-import { categories, dishes } from "@/data/menu";
+import { useMemo, useState, useEffect } from "react";
+import { Search, Loader2 } from "lucide-react";
+import { categories, dishes as fallbackDishes, Dish } from "@/data/menu";
 import { VegBadge, SpiceLevel } from "@/components/dish-badges";
 import { useCartStore } from "@/store/cart";
-
-
+import { createClient } from "@/utils/supabase/client";
 
 export default function MenuPage() {
   const [active, setActive] = useState<string>("All");
   const [query, setQuery] = useState("");
   const addItem = useCartStore((state) => state.addItem);
+  const [menuList, setMenuList] = useState<Dish[]>(fallbackDishes);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMenu() {
+      const supabase = createClient();
+      try {
+        const { data, error } = await supabase
+          .from("menu_items")
+          .select("*")
+          .eq("is_available", true);
+
+        if (!error && data && data.length > 0) {
+          const liveDishes: Dish[] = data.map((item) => ({
+            name: item.name,
+            description: item.description || "",
+            price: parseFloat(item.price).toFixed(2),
+            category: item.category,
+            veg: item.veg ?? false,
+            spice: (item.spice ?? 0) as any,
+            image: item.image_url || fallbackDishes.find(d => d.name.toLowerCase() === item.name.toLowerCase())?.image,
+          }));
+          setMenuList(liveDishes);
+        }
+      } catch (err) {
+        console.error("Supabase menu fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMenu();
+  }, []);
 
   const filtered = useMemo(() => {
-    return dishes.filter((d) => {
+    return menuList.filter((d) => {
       const cat = active === "All" || d.category === active;
       const q = query.trim().toLowerCase();
       const match = !q || d.name.toLowerCase().includes(q) || d.description.toLowerCase().includes(q);
       return cat && match;
     });
-  }, [active, query]);
+  }, [active, query, menuList]);
 
   return (
     <>
@@ -62,7 +93,12 @@ export default function MenuPage() {
       </div>
 
       <section className="container mx-auto px-5 lg:px-8 py-14">
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <p>Loading fresh menu from database...</p>
+          </div>
+        ) : filtered.length === 0 ? (
           <p className="text-center text-muted-foreground py-20">No dishes match your search.</p>
         ) : (
           <div className="grid md:grid-cols-2 gap-5">

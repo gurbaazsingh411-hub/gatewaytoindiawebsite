@@ -30,8 +30,8 @@ export function SiteFooter() {
         <div>
           <h4 className="font-display text-lg text-cream mb-4">Visit Us</h4>
           <ul className="space-y-3 text-sm text-cream/75">
-            <li className="flex gap-3"><MapPin className="w-4 h-4 mt-0.5 text-primary shrink-0" /> 1234 Curry Lane, Your City</li>
-            <li className="flex gap-3"><Phone className="w-4 h-4 mt-0.5 text-primary shrink-0" /> (555) 123-4567</li>
+            <li className="flex gap-3"><MapPin className="w-4 h-4 mt-0.5 text-primary shrink-0" /> 2603 6th Avenue, Tacoma, WA 98406</li>
+            <li className="flex gap-3"><Phone className="w-4 h-4 mt-0.5 text-primary shrink-0" /> (253) 552-5022</li>
             <li className="flex gap-3"><Mail className="w-4 h-4 mt-0.5 text-primary shrink-0" /> hello@gatewaytoindia.com</li>
           </ul>
         </div>
