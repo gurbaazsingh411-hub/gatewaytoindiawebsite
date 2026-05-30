@@ -20,11 +20,28 @@ export default function CateringPage() {
         </div>
       </section>
 
-      <section className="container mx-auto px-5 lg:px-8 py-20 grid lg:grid-cols-3 gap-6">
+      {/* CATERING SPECIAL BANNER */}
+      <section className="container mx-auto px-5 lg:px-8 pt-16 max-w-4xl">
+        <div className="bg-gradient-to-br from-primary/95 to-primary-foreground/90 border border-primary/20 rounded-3xl p-8 md:p-10 text-center text-primary-foreground shadow-warm relative overflow-hidden">
+          <div className="absolute top-0 right-0 -mt-6 -mr-6 w-24 h-24 rounded-full bg-cream/10 blur-xl"></div>
+          <span className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Special Events</span>
+          <h2 className="mt-3 font-display text-3xl md:text-5xl text-cream">We Do Catering!</h2>
+          <p className="mt-4 text-cream/90 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+            Do you have a wedding, birthday party, or another event that you need catered? Let us help you wow your guests with the best Indian cuisine in town! For all catering requests please call and provide a minimum of 48 hours notice.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-4 justify-center">
+            <a href="tel:2535525022" className="inline-flex items-center gap-2 rounded-full bg-cream text-primary font-bold px-6 py-3 shadow hover:scale-[1.02] transition-transform">
+              Call (253) 552-5022
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <section className="container mx-auto px-5 lg:px-8 py-16 grid lg:grid-cols-3 gap-6">
         {[
           { icon: Users, title: "Any size, any setting", desc: "From intimate dinners of 10 to events with 500+ guests." },
           { icon: Utensils, title: "Custom menus", desc: "Full vegetarian, vegan and dietary-friendly options crafted with you." },
-          { icon: CalendarCheck, title: "72-hour notice", desc: "Most events booked in 3 days — rush requests considered." },
+          { icon: CalendarCheck, title: "48-hour notice", desc: "Please call and provide a minimum of 48 hours notice." },
         ].map(({ icon: Icon, title, desc }) => (
           <div key={title} className="bg-card border border-border rounded-2xl p-7">
             <div className="w-12 h-12 rounded-xl bg-gradient-warm inline-flex items-center justify-center text-primary-foreground shadow-warm mb-4">
